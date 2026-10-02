@@ -1,0 +1,35 @@
+{
+  "baseline": "building_001_v1",
+  "recorded_date": "2026-10-01",
+  "status": "user_qualitative_acceptance",
+  "scope": "User accepts overall usefulness and contour quality on this sample; not every individual contour or all sites.",
+  "run_fingerprint": "ed60977695ca128230dcbe956512658391c5b09e5ba3c49eadaf177ef0780b57",
+  "user_findings": [
+    "Overall useful and acceptable",
+    "Stone shapes close to manual tracing",
+    "Main issues at photo seams and vegetation occlusion",
+    "Some pointed vertices can be handled by vertex editing"
+  ],
+  "user_suggested_future_options": [
+    "Improve photo stitching upstream",
+    "Optionally mark seam areas for image-model preprocessing",
+    "Optionally remove vegetation with AI or draw those regions manually"
+  ],
+  "not_established": [
+    "Measured editing-time savings",
+    "Other-site performance",
+    "Accurate inferred hidden geometry",
+    "Approval of all 319 candidates",
+    "Completed AutoCAD open test"
+  ],
+  "files_sha256": {
+    "plan.json": "907c29cd5a15060c178b704d96f705f3c205158f11e6f9c12cc37504573d0ae9",
+    "summary.json": "4a48176a65dde24ee542c0677d3a10aa06e21a75ba60c2635fe68c833b4f8e79",
+    "candidates.json": "050231a2de1d5b2ea3142aed9d17a5ad79bd7418076bf76dadbf8614319a4054"
+  },
+  "input_assets_sha256": {
+    "external/inputoutput/building_001_input.jpeg": "5fdcb61bd6fd32fc26c55e6fffbfcafc6a27588eb39cf627d8440264d04b8c6a",
+    "external/inputoutput/building_001_target.dxf": "1cfa1b9d1eeea916a88c3710990f2d1b588b68a5891af22d92cc18dd8092598d"
+  },
+  "paths_note": "The external/inputoutput keys are outside the Git repository; original site photo and target DXF are not copied here."
+}

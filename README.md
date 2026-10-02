@@ -27,13 +27,15 @@ py -3.12 -m venv .venv
 
 현재 작업 폴더의 합격 기준본을 열려면 `--sample`을 붙이세요.
 설치 후 macOS의 `run_editor.command`, Windows의 `run_editor.bat`을 더블클릭해도
-같은 기준본이 열립니다. 기준본은 Git에 포함하지 않으며 다음 형제 폴더 배치가 필요합니다.
+같은 기준본이 열립니다. 원본 현장 자료는 Git에 넣지 않으며 다음 폴더 배치가 필요합니다.
 
 ```text
 작업폴더/
-├── inputoutput/building_001_input.jpeg
-├── docs/baselines/building_001_v1/candidates.json
-└── Wall2CAD/  ← 이 Git 저장소
+├── inputoutput/                  # 원본 현장 자료, Git 바깥
+│   ├── building_001_input.jpeg
+│   └── building_001_target.dxf
+└── Wall2CAD/                     # 이 Git 저장소
+    └── docs/baselines/building_001_v1/candidates.json
 ```
 
 다른 사진·윤곽은 화면의 **사진 + 윤곽 열기** 또는 다음 명령으로 엽니다.
@@ -58,7 +60,7 @@ py -3.12 -m venv .venv
 
 실행 취소 이력은 현재 세션에서만 유지합니다. DXF 출력은 프로젝트 저장을 대신하지 않습니다.
 현재 macOS에서 검증했으며 Windows 실기기 및 AutoCAD에서의 편집본 검수는 아직 진행하지 않았습니다.
-상세 검증·사용 안내는 저장소 밖 `../docs/16_minimal_editor.md`에 있습니다.
+상세 검증·사용 안내는 [`docs/16_minimal_editor.md`](docs/16_minimal_editor.md)에 있습니다.
 
 ```bash
 # 개발 검증 — Windows에서는 .venv\Scripts\python.exe 사용

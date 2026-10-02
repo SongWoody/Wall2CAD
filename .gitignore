@@ -87,6 +87,9 @@ Thumbs.db
 *.dxf
 *.dwg
 *.wall2cad.json
+*.npz
+docs/experiments/full_image_reproduction_output/
+docs/assets/full_image_reproduction/
 
 # Logs
 *.log

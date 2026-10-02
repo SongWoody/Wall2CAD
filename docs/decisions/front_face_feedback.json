@@ -1,0 +1,30 @@
+{
+  "recorded_date": "2026-10-01",
+  "source": "User message responding to stone 03, 05, 07 diagnosis",
+  "target": "Front-facing stone contour, excluding recessed portions; infer short vegetation-occluded boundaries from surrounding shape",
+  "records": [
+    {
+      "stone_id": "03",
+      "verbatim_feedback": "3,4 이미지를 보면 위쪽 선의 오른쪽에서 부터 40% 영역을 보면 이 돌이 표면이 아닌 깊이 들어가있는 부분까지 인식해서 뾰족하게 표현된것 같습니다. 정면으로 봤을 때 정면의 모습만 표현되어야합니다. 비슷하게 2 이미지의 위쪽 선의 왼쪽 20% 를 봐도 같은 현상이 있습니다.",
+      "issue": "Recessed portions included along upper boundary, forming unwanted protrusions",
+      "desired_change": "Represent front-facing boundary only",
+      "exact_pixel_locations_confirmed": false
+    },
+    {
+      "stone_id": "05",
+      "verbatim_feedback": "3, 4 모두 적절하지 않습니다. 식생에 가려진 그림자 때문인지는 몰라도 위쪽 선이 중간에 V자로 나타납니다. 제 눈으로 추정하길 식생이 없다면 V자가 아닌 일자로 그려졌을 것 같습니다.",
+      "issue": "V-shaped upper boundary under vegetation",
+      "desired_change": "Infer approximately straight connection locally across the obscured segment",
+      "interpretation": "User-estimated occluded contour; neither shadow cause nor hidden geometry is independently measured"
+    },
+    {
+      "stone_id": "07",
+      "verbatim_feedback": "아래쪽은 3, 4 이미지 모두 이상 없습니다. 문제는 위쪽이 돌3에서 말한바와 같이 깊이 들어간 부분까지 돌의 표으로 인식하여 그려서 툭 튀어나온 모양으로 보입니다.",
+      "issue": "Recessed portions included along upper boundary",
+      "desired_change": "Remove unwanted upper protrusion when defining the front-facing boundary",
+      "accepted_region": "Lower contours in panels 3 and 4",
+      "do_not_infer": "Do not mark the entire stone accepted or smooth the accepted lower contour as a required correction"
+    }
+  ],
+  "new_inference_or_corrected_geometry": false
+}

@@ -1,0 +1,111 @@
+{
+  "image_shape": [
+    2574,
+    13788,
+    3
+  ],
+  "roi_xyxy": [
+    880,
+    620,
+    13284,
+    2344
+  ],
+  "settings": {
+    "version": 1,
+    "tile_width": 2048,
+    "overlap": 512,
+    "roi_padding": 64,
+    "white_threshold": 245,
+    "points_per_side": 32,
+    "pred_iou_thresh": 0.88,
+    "stability_score_thresh": 0.95,
+    "crop_n_layers": 0,
+    "min_mask_region_area": 100,
+    "min_contour_area_px": 500,
+    "max_contour_fraction_of_tile": 0.35,
+    "max_white_fraction": 0.1,
+    "internal_tile_edge_margin_px": 2,
+    "duplicate_iou": 0.6,
+    "duplicate_containment": 0.9,
+    "duplicate_min_area_ratio": 0.6,
+    "review_polygon_overlap_fraction": 0.05,
+    "dp_perimeter_factor": 0.012
+  },
+  "image_sha256": "5fdcb61bd6fd32fc26c55e6fffbfcafc6a27588eb39cf627d8440264d04b8c6a",
+  "checkpoint_sha256": "ec2df62732614e57411cdcf32a23ffdf28910380d03139ee0f4fcbe91eb8c912",
+  "tiles": [
+    {
+      "id": "T01",
+      "xyxy": [
+        880,
+        620,
+        2928,
+        2344
+      ]
+    },
+    {
+      "id": "T02",
+      "xyxy": [
+        2416,
+        620,
+        4464,
+        2344
+      ]
+    },
+    {
+      "id": "T03",
+      "xyxy": [
+        3952,
+        620,
+        6000,
+        2344
+      ]
+    },
+    {
+      "id": "T04",
+      "xyxy": [
+        5488,
+        620,
+        7536,
+        2344
+      ]
+    },
+    {
+      "id": "T05",
+      "xyxy": [
+        7024,
+        620,
+        9072,
+        2344
+      ]
+    },
+    {
+      "id": "T06",
+      "xyxy": [
+        8560,
+        620,
+        10608,
+        2344
+      ]
+    },
+    {
+      "id": "T07",
+      "xyxy": [
+        10096,
+        620,
+        12144,
+        2344
+      ]
+    },
+    {
+      "id": "T08",
+      "xyxy": [
+        11236,
+        620,
+        13284,
+        2344
+      ]
+    }
+  ],
+  "fingerprint": "ed60977695ca128230dcbe956512658391c5b09e5ba3c49eadaf177ef0780b57"
+}

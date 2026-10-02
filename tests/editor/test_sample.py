@@ -1,4 +1,4 @@
-"""Optional integration test using the accepted sample kept outside Git."""
+"""Optional integration test using the accepted sample and external photo."""
 from pathlib import Path
 
 import ezdxf
@@ -8,11 +8,12 @@ from contour_editor.model import Document, file_hash
 
 
 WORKSPACE = Path(__file__).resolve().parents[3]
+REPOSITORY = Path(__file__).resolve().parents[2]
 IMAGE = WORKSPACE / "inputoutput/building_001_input.jpeg"
-CANDIDATES = WORKSPACE / "docs/baselines/building_001_v1/candidates.json"
+CANDIDATES = REPOSITORY / "docs/baselines/building_001_v1/candidates.json"
 
 
-@pytest.mark.skipif(not IMAGE.exists() or not CANDIDATES.exists(), reason="Accepted sample is stored outside Git")
+@pytest.mark.skipif(not IMAGE.exists() or not CANDIDATES.exists(), reason="Sample photo is external or accepted vectors are missing")
 def test_accepted_319_contours_round_trip_and_edit_isolation(tmp_path):
     hashes = [file_hash(path) for path in (IMAGE, CANDIDATES)]
     doc = Document.from_candidates(IMAGE, 13788, 2574, CANDIDATES)

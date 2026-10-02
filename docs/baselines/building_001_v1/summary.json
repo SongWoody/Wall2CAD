@@ -1,0 +1,42 @@
+{
+  "run_fingerprint": "ed60977695ca128230dcbe956512658391c5b09e5ba3c49eadaf177ef0780b57",
+  "raw_masks": 513,
+  "filtered_candidates_before_dedup": 406,
+  "rejected_counts": {
+    "white_background": 18,
+    "internal_tile_edge": 85,
+    "large_region": 2,
+    "small_area": 2
+  },
+  "duplicate_candidates_removed": 87,
+  "exported_candidates": 319,
+  "overlap_review_candidates": 66,
+  "overlap_pairs": 37,
+  "tiles": 8,
+  "total_inference_seconds": 302.81698525114916,
+  "dxf_checks": {
+    "building_001_candidates.dxf": {
+      "closed_polylines": 319,
+      "audit_errors": 0,
+      "audit_fixes": 0,
+      "coordinate_roundtrip": true,
+      "image_reference": false
+    },
+    "building_001_candidates_with_image.dxf": {
+      "closed_polylines": 319,
+      "audit_errors": 0,
+      "audit_fixes": 0,
+      "coordinate_roundtrip": true,
+      "image_reference": true
+    }
+  },
+  "semantically_verified_stones": null,
+  "human_review_time_minutes": null,
+  "limitations": [
+    "No target DXF registration or accuracy score",
+    "Pixel units, not measured CAD units",
+    "No front-face or vegetation completion model",
+    "Overlap flags do not classify the cause",
+    "AutoCAD UI not tested"
+  ]
+}

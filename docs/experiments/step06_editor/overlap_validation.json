@@ -1,0 +1,33 @@
+{
+  "pairs": [
+    {
+      "pair": [
+        "S091",
+        "S093"
+      ],
+      "intersection_area_px2": 391.3450292397629,
+      "fraction_of_smaller": 0.03356591725188806,
+      "legacy_flags": [
+        [],
+        []
+      ]
+    },
+    {
+      "pair": [
+        "S093",
+        "S095"
+      ],
+      "intersection_area_px2": 499.06165335157,
+      "fraction_of_smaller": 0.009836052925845913,
+      "legacy_flags": [
+        [],
+        []
+      ]
+    }
+  ],
+  "current_overlapping_stones": 197,
+  "current_overlap_pairs": 151,
+  "old_flagged_stones": 66,
+  "tests_passed": 26,
+  "rule": "Current polygon intersection area > 1e-6 px^2; boundary-only contact excluded."
+}

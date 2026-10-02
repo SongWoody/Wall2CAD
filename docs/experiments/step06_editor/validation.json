@@ -1,0 +1,21 @@
+{
+  "candidate_count": 319,
+  "load_and_first_paint_seconds": 1.136,
+  "image_size": [
+    13788,
+    2574
+  ],
+  "all_polygons_valid": true,
+  "baseline_dxf_entities": 319,
+  "baseline_dxf_exact_coordinates": true,
+  "edited_dxf_entities": 318,
+  "edited_round_trip_exact": true,
+  "neighbors_unchanged": true,
+  "undo_restores_all": true,
+  "source_hashes_unchanged": true,
+  "qa_edits": "S001 first vertex shifted +1,+1 px; S002 deleted. Test only, not user-approved corrections.",
+  "source_sha256": {
+    "inputoutput/building_001_input.jpeg": "5fdcb61bd6fd32fc26c55e6fffbfcafc6a27588eb39cf627d8440264d04b8c6a",
+    "docs/baselines/building_001_v1/candidates.json": "050231a2de1d5b2ea3142aed9d17a5ad79bd7418076bf76dadbf8614319a4054"
+  }
+}

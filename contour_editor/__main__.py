@@ -13,7 +13,7 @@ def main():
     parser.add_argument("project", nargs="?", type=Path, help="저장한 .wall2cad.json")
     parser.add_argument("--image", type=Path)
     parser.add_argument("--contours", type=Path)
-    parser.add_argument("--sample", action="store_true", help="저장소 밖 building_001 합격 기준본 열기")
+    parser.add_argument("--sample", action="store_true", help="인접한 inputoutput/ 사진과 저장소 docs 기준본 열기")
     args = parser.parse_args()
     if sum([bool(args.project), args.sample, bool(args.image or args.contours)]) > 1:
         parser.error("project, --sample, --image/--contours 중 하나를 선택하세요.")
@@ -25,9 +25,17 @@ def main():
     window = EditorWindow()
     try:
         if args.sample:
-            workspace = Path(__file__).resolve().parents[2]
-            window.load_candidates(workspace / "inputoutput/building_001_input.jpeg",
-                                   workspace / "docs/baselines/building_001_v1/candidates.json")
+            repository = Path(__file__).resolve().parents[1]
+            workspace = repository.parent
+            image = workspace / "inputoutput/building_001_input.jpeg"
+            candidates = repository / "docs/baselines/building_001_v1/candidates.json"
+            if not image.is_file() or not candidates.is_file():
+                raise FileNotFoundError(
+                    "기준본을 열려면 프로젝트 바깥 inputoutput/building_001_input.jpeg와 "
+                    "저장소 안 docs/baselines/building_001_v1/candidates.json이 필요합니다. "
+                    "다른 자료는 --image와 --contours로 지정할 수 있습니다."
+                )
+            window.load_candidates(image, candidates)
         elif args.image:
             window.load_candidates(args.image, args.contours)
         elif args.project:
