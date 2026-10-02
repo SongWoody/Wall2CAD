@@ -6,9 +6,5 @@ if not exist ".venv\Scripts\python.exe" (
   pause
   exit /b 1
 )
-if "%~1"=="" (
-  ".venv\Scripts\python.exe" -m contour_editor --sample
-) else (
-  ".venv\Scripts\python.exe" -m contour_editor %*
-)
+".venv\Scripts\python.exe" -m contour_editor %*
 if errorlevel 1 pause

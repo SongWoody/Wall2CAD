@@ -6,7 +6,4 @@ if [[ ! -x .venv/bin/python ]]; then
   read '?Enter 키를 누르면 닫힙니다.'
   exit 1
 fi
-if (( $# == 0 )); then
-  set -- --sample
-fi
 exec .venv/bin/python -m contour_editor "$@"

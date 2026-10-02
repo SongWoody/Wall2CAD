@@ -2,17 +2,19 @@ from pathlib import Path
 
 from PyQt6.QtCore import QTimer, Qt
 from PyQt6.QtGui import QAction, QImage, QKeySequence
-from PyQt6.QtWidgets import (QCheckBox, QFileDialog, QLabel, QListWidget, QMainWindow,
-                             QMessageBox, QSizePolicy, QSplitter, QToolBar, QVBoxLayout, QWidget)
+from PyQt6.QtWidgets import (QCheckBox, QDialog, QFileDialog, QLabel, QListWidget, QMainWindow,
+                             QMessageBox, QSizePolicy, QSplitter, QStackedWidget, QToolBar, QVBoxLayout, QWidget)
 
 from .canvas import Canvas
 from .model import Document
+from .start_page import NewProjectDialog, RecentProjects, StartPage
 
 
 class EditorWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, settings=None):
         super().__init__()
         self.document = None
+        self.recents = RecentProjects(settings)
         self.resize(1440, 900)
         self.setWindowTitle("Wall2CAD · 윤곽 편집기")
         self.canvas = Canvas()
@@ -49,7 +51,15 @@ class EditorWindow(QMainWindow):
         hint.setSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         hint.setStyleSheet("padding: 9px; background: #e8eef1; color: #294251;")
         layout.addWidget(hint)
-        self.setCentralWidget(central)
+        self.editor_page = central
+        self.start_page = StartPage(self.recents)
+        self.start_page.newRequested.connect(self.open_candidates)
+        self.start_page.openRequested.connect(self.open_project)
+        self.start_page.recentRequested.connect(self.open_project_path)
+        self.pages = QStackedWidget()
+        self.pages.addWidget(self.start_page)
+        self.pages.addWidget(self.editor_page)
+        self.setCentralWidget(self.pages)
         self.zoom_label = QLabel("100%")
         self.statusBar().addPermanentWidget(self.zoom_label)
         self.canvas.zoomChanged.connect(lambda scale: self.zoom_label.setText(f"{scale * 100:.1f}%"))
@@ -74,8 +84,9 @@ class EditorWindow(QMainWindow):
                 toolbar.addAction(result)
             return result
 
-        action("사진 + 윤곽 열기", self.open_candidates, files, top)
+        action("새 프로젝트", self.open_candidates, files, top, QKeySequence.StandardKey.New)
         action("프로젝트 열기", self.open_project, files, top, QKeySequence.StandardKey.Open)
+        self.home_action = action("프로젝트 닫기 · 시작 화면", self.go_home, files, top)
         self.save_action = action("저장", self.save_project, files, top, QKeySequence.StandardKey.Save)
         self.save_as_action = action("다른 이름으로 저장", lambda: self.save_project(save_as=True), files, shortcut=QKeySequence.StandardKey.SaveAs)
         top.addSeparator()
@@ -84,6 +95,7 @@ class EditorWindow(QMainWindow):
         edits = QToolBar("윤곽 편집")
         edits.setMovable(False)
         self.addToolBar(edits)
+        self.editor_toolbars = (top, edits)
         self.undo_action = action("실행 취소", self.undo, edit, edits, QKeySequence.StandardKey.Undo)
         self.redo_action = action("다시 실행", self.redo, edit, edits, QKeySequence.StandardKey.Redo)
         edits.addSeparator()
@@ -114,6 +126,9 @@ class EditorWindow(QMainWindow):
             raise ValueError("사진을 읽을 수 없거나 프로젝트의 사진 크기와 다릅니다.")
         self.document = document
         self.canvas.set_document(document, image)
+        self.pages.setCurrentWidget(self.editor_page)
+        if document.path:
+            self.recents.remember(document.path)
         self.refresh()
         QTimer.singleShot(0, self.canvas.fit)
 
@@ -136,21 +151,23 @@ class EditorWindow(QMainWindow):
     def open_candidates(self):
         if not self.may_discard():
             return
-        image, _ = QFileDialog.getOpenFileName(self, "사진 선택", "", "사진 (*.jpeg *.jpg *.png *.tif *.tiff *.bmp)")
-        if not image:
-            return
-        contours, _ = QFileDialog.getOpenFileName(self, "윤곽 후보 JSON 선택", str(Path(image).parent), "JSON (*.json)")
-        if contours:
+        dialog = NewProjectDialog(self)
+        if dialog.exec() == QDialog.DialogCode.Accepted:
             try:
-                self.load_candidates(image, contours)
+                self.load_candidates(dialog.image_path.text().strip(), dialog.contours_path.text().strip())
             except (OSError, ValueError, KeyError, TypeError) as exc:
                 self.error(exc)
 
     def open_project(self):
+        path, _ = QFileDialog.getOpenFileName(self, "편집 프로젝트 열기", "", "Wall2CAD (*.wall2cad.json);;JSON (*.json)")
+        if path:
+            self.open_project_path(path)
+
+    def open_project_path(self, path):
         if not self.may_discard():
             return
-        path, _ = QFileDialog.getOpenFileName(self, "편집 프로젝트 열기", "", "Wall2CAD (*.wall2cad.json);;JSON (*.json)")
-        if not path:
+        if not Path(path).is_file():
+            self.error("프로젝트 파일을 찾을 수 없습니다. ‘프로젝트 열기’에서 이동한 파일을 선택하세요.\n" + str(path))
             return
         try:
             try:
@@ -164,6 +181,17 @@ class EditorWindow(QMainWindow):
             self.attach(document)
         except (OSError, ValueError, KeyError, TypeError) as exc:
             self.error(exc)
+
+    def go_home(self):
+        if not self.may_discard():
+            return
+        self.canvas.cancel_drag()
+        self.document = None
+        self.canvas.set_document(None, None)
+        self.pages.setCurrentWidget(self.start_page)
+        self.start_page.reload()
+        self.statusBar().clearMessage()
+        self.refresh()
 
     def save_project(self, checked=False, *, save_as=False):
         if not self.document:
@@ -181,6 +209,7 @@ class EditorWindow(QMainWindow):
                     return False
         try:
             self.document.save(path)
+            self.recents.remember(path)
             self.refresh()
             self.statusBar().showMessage(f"프로젝트 저장: {path}", 10000)
             return True
@@ -242,6 +271,10 @@ class EditorWindow(QMainWindow):
 
     def refresh(self):
         doc = self.document
+        for toolbar in self.editor_toolbars:
+            toolbar.setVisible(doc is not None)
+        self.zoom_label.setVisible(doc is not None)
+        self.home_action.setEnabled(doc is not None)
         self.list.blockSignals(True)
         scroll = self.list.verticalScrollBar().value()
         self.list.clear()
@@ -261,7 +294,7 @@ class EditorWindow(QMainWindow):
             action.setEnabled(doc is not None)
         self.undo_action.setEnabled(doc is not None and doc.cursor > 0)
         self.redo_action.setEnabled(doc is not None and doc.cursor < len(doc.history))
-        name = doc.path.name if doc and doc.path else "새 편집 프로젝트"
+        name = (doc.path.name if doc.path else "새 편집 프로젝트") if doc else "시작"
         self.setWindowTitle(f"{'* ' if doc and doc.dirty else ''}{name} — Wall2CAD")
         self.sync_selection()
         self.canvas.update()

@@ -65,5 +65,5 @@ cd /Users/woody/Desktop/Wall2CAD/Wall2CAD
 ./run_editor.command
 ```
 
-위 명령은 기준본을 여므로, 이어 작업하려면 **프로젝트 열기**에서 저장한 `.wall2cad.json`을 선택하세요.
+위 명령은 시작 화면을 엽니다. 이어 작업하려면 **프로젝트 열기**에서 저장한 `.wall2cad.json`을 선택하세요.
 또는 `.venv/bin/python -m contour_editor /경로/저장한.wall2cad.json`으로 바로 열 수 있습니다.
