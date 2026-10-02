@@ -2,6 +2,69 @@
 
 문화재 토목기술자를 위한 AI 기반 벽돌 분석 및 CAD 변환 도구
 
+## 최소 윤곽 편집기 (2026-10-02)
+
+현재 개발 진입점은 `contour_editor`입니다. 사진과 이미 추출한 돌 좌표를 불러와
+정점 이동·추가·삭제, 돌 삭제, 실행 취소·다시 실행, 프로젝트 저장·재열기,
+닫힌 폴리라인 DXF 출력을 할 수 있습니다. SAM 추론은 실행하지 않습니다.
+기존 두 GUI와 독립적으로 실행되며, 아래의 과거 프로젝트 소개에는 계획 단계의 기능도 포함돼 있습니다.
+
+Python 3.12 환경에서 설치·실행합니다. 편집기에는 GPU나 모델 가중치가 필요하지 않습니다.
+
+```bash
+# macOS / Linux — 이 README가 있는 Git 저장소에서 실행
+python3.12 -m venv .venv
+.venv/bin/python -m pip install -r requirements-editor.txt
+.venv/bin/python -m contour_editor
+```
+
+```powershell
+# Windows — 이 README가 있는 Git 저장소에서 실행
+py -3.12 -m venv .venv
+.venv\Scripts\python.exe -m pip install -r requirements-editor.txt
+.venv\Scripts\python.exe -m contour_editor
+```
+
+현재 작업 폴더의 합격 기준본을 열려면 `--sample`을 붙이세요.
+설치 후 macOS의 `run_editor.command`, Windows의 `run_editor.bat`을 더블클릭해도
+같은 기준본이 열립니다. 기준본은 Git에 포함하지 않으며 다음 형제 폴더 배치가 필요합니다.
+
+```text
+작업폴더/
+├── inputoutput/building_001_input.jpeg
+├── docs/baselines/building_001_v1/candidates.json
+└── Wall2CAD/  ← 이 Git 저장소
+```
+
+다른 사진·윤곽은 화면의 **사진 + 윤곽 열기** 또는 다음 명령으로 엽니다.
+후보 JSON은 `[{"id": "S001", "points": [[x, y], ...]}, ...]` 형태이며,
+좌표는 원본 사진의 왼쪽 위가 원점인 픽셀 단위입니다. `layer: "REVIEW_OVERLAP"`은 주황색으로 표시됩니다.
+
+```bash
+.venv/bin/python -m contour_editor --image /path/photo.jpeg --contours /path/candidates.json
+.venv/bin/python -m contour_editor /path/review.wall2cad.json
+```
+
+- 돌 클릭으로 선택, 왼쪽 목록 더블클릭으로 해당 돌 확대.
+- 정점을 드래그하여 이동, 선택 돌의 선 더블클릭으로 정점 추가.
+- 정점 클릭 후 Delete/Backspace로 삭제. 돌 전체는 **돌 삭제** 버튼 사용.
+- 휠로 확대, Space+드래그 또는 가운데 버튼으로 이동, F로 전체 보기.
+- **선택 돌 원본 비교**를 켜면 원래 윤곽이 분홍 점선으로 표시됩니다.
+- 프로젝트는 `.wall2cad.json`으로 저장합니다. 원본 좌표·편집 좌표·삭제 상태를 보존하며 사진은 별도 파일로 유지합니다.
+- DXF는 픽셀 좌표/단위 없음입니다. `x = 사진 x`, `y = 사진 높이 - 사진 y`로 출력하며 실측 좌표 정합은 별도입니다.
+
+실행 취소 이력은 현재 세션에서만 유지합니다. DXF 출력은 프로젝트 저장을 대신하지 않습니다.
+현재 macOS에서 검증했으며 Windows 실기기 및 AutoCAD에서의 편집본 검수는 아직 진행하지 않았습니다.
+상세 검증·사용 안내는 저장소 밖 `../docs/16_minimal_editor.md`에 있습니다.
+
+```bash
+# 개발 검증 — Windows에서는 .venv\Scripts\python.exe 사용
+.venv/bin/python -m pip install -r requirements-editor-dev.txt
+.venv/bin/python -m pytest tests/editor -q
+```
+
+샘플 통합 테스트는 위 형제 폴더에 기준본이 있을 때만 실행합니다.
+
 ## 프로젝트 개요
 
 Wall2CAD는 문화재 토목 기술 분야에서 건축용 벽 이미지를 정밀하게 분석하여 각 벽돌의 외곽선을 자동으로 감지하고, 이를 벡터 데이터로 변환한 후 CAD 소프트웨어에서 바로 사용할 수 있는 DXF 파일로 내보내는 전문 도구입니다.

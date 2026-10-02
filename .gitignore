@@ -86,6 +86,7 @@ Thumbs.db
 # Output files
 *.dxf
 *.dwg
+*.wall2cad.json
 
 # Logs
 *.log
