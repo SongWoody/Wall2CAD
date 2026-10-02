@@ -14,6 +14,8 @@ import os
 from pathlib import Path
 import tempfile
 
+from .overlap import find_overlaps
+
 Point = tuple[float, float]
 Points = tuple[Point, ...]
 
@@ -126,6 +128,13 @@ class Document:
         self.history: list[Change] = []
         self.cursor = 0
         self.clean_cursor = -1  # Imported candidates have not been saved as a project.
+        self._update_overlaps()
+
+    def _update_overlaps(self):
+        self.overlaps, self.overlap_regions = find_overlaps(self.active)
+
+    def has_overlap(self, stone_id):
+        return bool(self.overlaps.get(stone_id))
 
     @classmethod
     def from_candidates(cls, image_path, width, height, candidates_path):
@@ -161,6 +170,7 @@ class Document:
         self.history.append(Change(stone_id, before, after, label))
         self.cursor += 1
         stone.points, stone.deleted = after
+        self._update_overlaps()
         return True
 
     def undo(self):
@@ -169,6 +179,7 @@ class Document:
         self.cursor -= 1
         change = self.history[self.cursor]
         self.stones[change.stone_id].points, self.stones[change.stone_id].deleted = change.before
+        self._update_overlaps()
         return change.stone_id
 
     def redo(self):
@@ -177,6 +188,7 @@ class Document:
         change = self.history[self.cursor]
         self.stones[change.stone_id].points, self.stones[change.stone_id].deleted = change.after
         self.cursor += 1
+        self._update_overlaps()
         return change.stone_id
 
     def protect_sources(self, path):
@@ -239,7 +251,7 @@ class Document:
         drawing.layers.new("REVIEW_OVERLAP", dxfattribs={"color": 30})
         for stone in self.active:
             validate_polygon(stone.points, self.width, self.height)
-            layer = "REVIEW_OVERLAP" if stone.metadata.get("layer") == "REVIEW_OVERLAP" else "STONE_CANDIDATE"
+            layer = "REVIEW_OVERLAP" if self.has_overlap(stone.id) else "STONE_CANDIDATE"
             entity = drawing.modelspace().add_lwpolyline(
                 [(x, self.height - y) for x, y in stone.points], close=True,
                 dxfattribs={"layer": layer})

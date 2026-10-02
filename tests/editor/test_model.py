@@ -117,3 +117,29 @@ def test_failed_save_preserves_previous_file(document, tmp_path, monkeypatch):
         document.save(path)
     assert document.dirty and path.read_bytes() == before
     assert sorted(p.name for p in tmp_path.iterdir()) == ["candidates.json", "photo.jpeg", "review.wall2cad.json"]
+
+
+def test_current_overlap_follows_edits_history_deletion_save_and_export(document, tmp_path):
+    # Imported REVIEW_OVERLAP is stale: these two squares initially do not overlap.
+    assert not document.has_overlap("S002")
+    document.change("S002", points=[(79, 10), (180, 10), (180, 80), (79, 80)])
+    assert document.overlaps["S001"] == {"S002"}
+    assert document.overlap_regions[("S001", "S002")].area == 70
+    document.undo()
+    assert not document.has_overlap("S001")
+    document.redo()
+    assert document.has_overlap("S001")
+    document.change("S002", deleted=True)
+    assert not document.has_overlap("S001") and not document.overlap_regions
+    document.undo()
+    path = tmp_path / "overlap.wall2cad.json"
+    document.save(path)
+    restored = Document.load(path)
+    assert restored.overlaps == document.overlaps
+    output = tmp_path / "overlap.dxf"
+    restored.export_dxf(output)
+    assert all(e.dxf.layer == "REVIEW_OVERLAP" for e in ezdxf.readfile(output).modelspace())
+    restored.change("S002", points=restored.stones["S002"].original)
+    restored.export_dxf(output)
+    assert all(e.dxf.layer == "STONE_CANDIDATE" for e in ezdxf.readfile(output).modelspace())
+    assert restored.stones["S002"].metadata["layer"] == "REVIEW_OVERLAP"

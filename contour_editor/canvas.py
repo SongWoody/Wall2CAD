@@ -3,8 +3,10 @@ from __future__ import annotations
 
 import math
 from PyQt6.QtCore import QPointF, QRectF, Qt, pyqtSignal
-from PyQt6.QtGui import QColor, QPainter, QPen, QPolygonF, QTransform
+from PyQt6.QtGui import QColor, QPainter, QPainterPath, QPen, QPolygonF, QTransform
 from PyQt6.QtWidgets import QWidget
+
+from .overlap import polygon_parts
 
 
 def nearest_segment(points, pos):
@@ -38,6 +40,7 @@ class Canvas(QWidget):
         self.show_image = True
         self.show_lines = True
         self.show_original = False
+        self.show_overlaps = True
         self.space = False
         self.pan_start = None
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
@@ -116,6 +119,23 @@ class Canvas(QWidget):
         if not self.show_lines:
             return
         visible = self.transform().inverted()[0].mapRect(QRectF(self.rect()))
+        # Keep selected outlines/handles above the intersection highlight. During
+        # a drag the index still represents committed geometry, so hide it briefly.
+        if self.show_overlaps and self.preview is None:
+            for geometry in self.document.overlap_regions.values():
+                for part in polygon_parts(geometry):
+                    path = QPainterPath()
+                    path.setFillRule(Qt.FillRule.OddEvenFill)
+                    for ring in (part.exterior, *part.interiors):
+                        path.addPolygon(QPolygonF([QPointF(x, y) for x, y in ring.coords]))
+                        path.closeSubpath()
+                    if not visible.intersects(path.boundingRect()):
+                        continue
+                    pen = QPen(QColor("#ff4058"), 2)
+                    pen.setCosmetic(True)
+                    p.setPen(pen)
+                    p.setBrush(QColor(255, 64, 88, 130))
+                    p.drawPath(path)
         stones = [s for s in self.document.active if s.id != self.selected]
         if self.current():
             stones.append(self.current())
@@ -131,7 +151,7 @@ class Canvas(QWidget):
                 p.setPen(pen)
                 p.setBrush(Qt.BrushStyle.NoBrush)
                 p.drawPolygon(QPolygonF([QPointF(*v) for v in stone.original]))
-            color = "#ffee65" if selected else ("#ffab50" if stone.metadata.get("layer") == "REVIEW_OVERLAP" else "#5aefd0")
+            color = "#ffee65" if selected else ("#ffab50" if self.document.has_overlap(stone.id) else "#5aefd0")
             pen = QPen(QColor(color), 2 if selected else 1.3)
             pen.setCosmetic(True)
             p.setPen(pen)

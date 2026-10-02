@@ -27,7 +27,7 @@ class EditorWindow(QMainWindow):
         side.addWidget(heading)
         self.count = QLabel("사진 · 윤곽을 불러오세요")
         side.addWidget(self.count)
-        search_hint = QLabel("클릭: 선택 · 더블클릭: 확대\n주황: 겹침 검토 · ●: 수정됨")
+        search_hint = QLabel("클릭: 선택 · 더블클릭: 확대\n주황: 겹친 돌 · 빨강: 겹친 영역\n●: 수정됨 · 편집 후 겹침 갱신")
         search_hint.setStyleSheet("color: #647581; padding-bottom: 8px;")
         side.addWidget(search_hint)
         side.addWidget(self.list)
@@ -92,7 +92,7 @@ class EditorWindow(QMainWindow):
         self.delete_stone_action = action("돌 삭제", self.canvas.delete_stone, edit, edits)
         edits.addSeparator()
         action("전체 보기", self.canvas.fit, view, edits, QKeySequence("F"))
-        for label, field, default in [("사진", "show_image", True), ("윤곽", "show_lines", True), ("선택 돌 원본 비교", "show_original", False)]:
+        for label, field, default in [("사진", "show_image", True), ("윤곽", "show_lines", True), ("겹친 영역", "show_overlaps", True), ("선택 돌 원본 비교", "show_original", False)]:
             box = QCheckBox(label)
             box.setChecked(default)
             box.setStyleSheet("padding: 0 8px;")
@@ -234,6 +234,9 @@ class EditorWindow(QMainWindow):
         self.list.blockSignals(False)
         vertex = self.canvas.vertex
         self.detail.setText(f"{stone.id} · 정점 {len(stone.points)}개" + (f"\n선택 정점: {vertex + 1}" if vertex is not None else "") if stone else "선택한 돌 없음")
+        if stone:
+            others = sorted(self.document.overlaps.get(stone.id, ()))
+            self.detail.setText(self.detail.text() + "\n겹침: " + (", ".join(others) if others else "없음"))
         self.delete_vertex_action.setEnabled(stone is not None and vertex is not None)
         self.delete_stone_action.setEnabled(stone is not None)
 
@@ -245,11 +248,13 @@ class EditorWindow(QMainWindow):
         if doc:
             for stone in doc.active:
                 edited = " ●" if stone.points != stone.original else ""
-                overlap = " · 겹침" if stone.metadata.get("layer") == "REVIEW_OVERLAP" else ""
+                neighbors = sorted(doc.overlaps.get(stone.id, ()))
+                overlap = f" · 겹침 {len(neighbors)}" if neighbors else ""
                 self.list.addItem(stone.id + edited + overlap)
                 item = self.list.item(self.list.count() - 1)
                 item.setData(Qt.ItemDataRole.UserRole, stone.id)
-            self.count.setText(f"남은 돌 {len(doc.active)} / {len(doc.stones)}")
+                item.setToolTip("겹침: " + (", ".join(neighbors) if neighbors else "없음"))
+            self.count.setText(f"남은 돌 {len(doc.active)} / {len(doc.stones)}\n겹친 돌 {sum(bool(v) for v in doc.overlaps.values())} · {len(doc.overlap_regions)}쌍")
         self.list.verticalScrollBar().setValue(scroll)
         self.list.blockSignals(False)
         for action in (self.save_action, self.save_as_action, self.export_action):

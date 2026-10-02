@@ -17,6 +17,10 @@ def test_accepted_319_contours_round_trip_and_edit_isolation(tmp_path):
     hashes = [file_hash(path) for path in (IMAGE, CANDIDATES)]
     doc = Document.from_candidates(IMAGE, 13788, 2574, CANDIDATES)
     assert len(doc.active) == 319
+    assert {"S091", "S095"} <= doc.overlaps["S093"]
+    for pair in (("S091", "S093"), ("S093", "S095")):
+        assert doc.overlap_regions[pair].area > 0
+        assert all(not doc.stones[key].metadata["overlap_with"] for key in pair)
     originals = {s.id: s.points for s in doc.active}
     baseline = tmp_path / "baseline.dxf"
     doc.export_dxf(baseline)
@@ -31,6 +35,7 @@ def test_accepted_319_contours_round_trip_and_edit_isolation(tmp_path):
             assert entity.closed
             assert list(entity.get_points("xy")) == [(x, doc.height - y) for x, y in stone.points]
             assert entity.get_xdata("WALL2CAD_REVIEW")[0].value == stone.id
+            assert entity.dxf.layer == ("REVIEW_OVERLAP" if doc.has_overlap(stone.id) else "STONE_CANDIDATE")
 
     check_dxf(baseline, doc.active)
     pts = list(doc.stones["S001"].points)

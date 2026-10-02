@@ -107,3 +107,27 @@ def test_unsaved_close_cancel_then_save_failure_keeps_window(window, monkeypatch
     monkeypatch.setattr(QMessageBox, "question", lambda *args: QMessageBox.StandardButton.Save)
     monkeypatch.setattr(window, "save_project", lambda: False)
     assert not window.may_discard()
+
+
+def test_overlap_list_detail_and_area_overlay_update(window, app):
+    c, doc = window.canvas, window.document
+    window.toggle_view("show_image", False)
+    # A thin overlap, previously excluded by the 5% threshold.
+    doc.change("S002", points=[(149, 50), (320, 50), (320, 150), (149, 150)])
+    window.refresh()
+    c.select("S001")
+    app.processEvents()
+    assert "겹침 1" in window.list.item(0).text()
+    assert "S002" in window.detail.text()
+    assert "2 · 1쌍" in window.count.text()
+    c.select(None)
+    pixel = c.to_screen((149.5, 100)).toPoint()
+    highlighted = c.grab().toImage().pixelColor(pixel)
+    window.toggle_view("show_overlaps", False)
+    plain = c.grab().toImage().pixelColor(pixel)
+    assert highlighted != plain
+    c.select("S002")
+    c.delete_stone()
+    assert "겹침" not in window.list.item(0).text()
+    window.undo()
+    assert "겹침 1" in window.list.item(0).text()
