@@ -8,6 +8,7 @@
 1. [현재 목표·파이프라인·다음 단계](PROJECT_STATUS.md)
 2. [편집기 실행과 조작법](16_minimal_editor.md)
 3. [겹침 표시 보정 기록](17_overlap_display_fix.md)
+4. [바깥 기존 문서 폴더 정리 확인](18_archive_cleanup_review.md)
 
 ## 보존한 자료
 
